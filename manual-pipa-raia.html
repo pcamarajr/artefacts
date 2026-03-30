@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual da Pipa</title>
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #87CEEB; --deep-sky: #1a6fa8; --sun: #FFD166;
+    --kite-red: #EF476F; --kite-blue: #118AB2; --grass: #06D6A0;
+    --dark: #073B4C; --white: #FAFFF8; --orange: #FF6B35; --green: #06A77D;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Nunito',sans-serif; background:var(--white); color:var(--dark); overflow-x:hidden; }
+
+  .hero {
+    background: linear-gradient(180deg,#87CEEB 0%,#c8e8f7 60%,#d4edda 100%);
+    min-height:240px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    position:relative; padding:28px 20px 52px; overflow:hidden;
+  }
+  .hero::after { content:''; position:absolute; bottom:-2px; left:0; right:0; height:52px; background:var(--white); clip-path:ellipse(60% 100% at 50% 100%); }
+  .cloud { position:absolute; background:white; border-radius:50px; opacity:0.85; }
+  .cloud::before,.cloud::after { content:''; position:absolute; background:white; border-radius:50%; }
+  .c1 { width:80px; height:28px; top:28px; left:6%; animation:drift 18s linear infinite; }
+  .c1::before { width:36px; height:36px; top:-18px; left:12px; }
+  .c1::after  { width:24px; height:24px; top:-12px; left:36px; }
+  .c2 { width:60px; height:22px; top:52px; right:10%; animation:drift 24s linear infinite reverse; }
+  .c2::before { width:28px; height:28px; top:-14px; left:8px; }
+  .c2::after  { width:20px; height:20px; top:-10px; left:28px; }
+  @keyframes drift { 0%,100%{transform:translateX(0)} 50%{transform:translateX(28px)} }
+
+  .hero-kites { display:flex; gap:28px; align-items:flex-end; margin-bottom:12px; }
+  .hero-kite { animation:float 4s ease-in-out infinite; filter:drop-shadow(3px 5px 10px rgba(0,0,0,0.18)); }
+  .hero-kite:nth-child(2) { animation-delay:-1.3s; }
+  .hero-kite:nth-child(3) { animation-delay:-2.6s; }
+  @keyframes float { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-11px) rotate(3deg)} }
+
+  .hero h1 { font-family:'Abril Fatface',serif; font-size:2.2rem; color:var(--dark); text-align:center; line-height:1.1; text-shadow:2px 3px 0 rgba(255,255,255,0.7); }
+  .hero p { margin-top:7px; font-size:0.9rem; color:var(--deep-sky); font-weight:700; text-align:center; }
+
+  /* MODEL SELECTOR */
+  .model-selector { display:flex; justify-content:center; padding:22px 16px 0; gap:0; }
+  .model-btn {
+    flex:1; max-width:160px; padding:10px 12px; font-family:'Nunito',sans-serif; font-weight:700; font-size:0.88rem;
+    cursor:pointer; border:2.5px solid var(--dark); background:var(--white); color:var(--dark);
+    transition:all 0.2s; display:flex; flex-direction:column; align-items:center; gap:3px;
+  }
+  .model-btn:first-child  { border-radius:14px 0 0 14px; border-right-width:1.25px; }
+  .model-btn:nth-child(2) { border-left-width:1.25px; border-right-width:1.25px; }
+  .model-btn:last-child   { border-radius:0 14px 14px 0; border-left-width:1.25px; }
+  .model-btn .model-icon { font-size:1.3rem; }
+  .model-btn .model-sub  { font-size:0.67rem; font-weight:600; color:#7a9aaa; }
+  .model-btn.active { background:var(--dark); color:var(--white); box-shadow:4px 4px 0 var(--kite-red); z-index:1; }
+  .model-btn.active .model-sub { color:#aaccdd; }
+
+  /* SUB TABS */
+  .sub-tabs { display:flex; justify-content:center; gap:5px; padding:14px 14px 0; flex-wrap:wrap; }
+  .tab-btn {
+    background:none; border:2px solid #bcd; border-radius:30px; padding:5px 13px;
+    font-family:'Nunito',sans-serif; font-weight:700; font-size:0.78rem;
+    cursor:pointer; color:#5a7a8a; transition:all 0.2s;
+  }
+  .tab-btn:hover  { background:var(--sun); border-color:var(--sun); color:var(--dark); }
+  .tab-btn.active { background:var(--dark); color:var(--white); border-color:var(--dark); }
+
+  .model-panel { display:none; }
+  .model-panel.active { display:block; }
+
+  .section { display:none; max-width:680px; margin:0 auto; padding:24px 18px 56px; animation:fadeIn 0.3s ease; }
+  .section.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(9px)} to{opacity:1;transform:translateY(0)} }
+
+  .section-title { font-family:'Abril Fatface',serif; font-size:1.6rem; color:var(--dark); margin-bottom:16px; display:flex; align-items:center; gap:9px; }
+
+  .model-tag { display:inline-block; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; padding:3px 10px; border-radius:20px; margin-bottom:14px; border:2px solid; }
+  .tag-raia     { background:#ffeef2; color:var(--kite-red); border-color:var(--kite-red); }
+  .tag-quadrada { background:#fff0e8; color:var(--orange); border-color:var(--orange); }
+  .tag-paulista { background:#e8fff8; color:var(--green); border-color:var(--green); }
+
+  .card { background:var(--white); border:2.5px solid var(--dark); border-radius:16px; padding:16px 20px; margin-bottom:15px; box-shadow:4px 4px 0 var(--dark); position:relative; }
+  .card-label { position:absolute; top:12px; right:12px; background:var(--sun); border:2px solid var(--dark); border-radius:20px; font-size:0.67rem; font-weight:700; padding:2px 9px; text-transform:uppercase; letter-spacing:0.05em; }
+  .card h3 { font-size:0.96rem; font-weight:700; margin-bottom:7px; }
+  .card p,.card li { font-size:0.87rem; line-height:1.65; color:#2a4a56; }
+  .card ul { padding-left:18px; }
+  .card li { margin-bottom:3px; }
+
+  .diagram-wrap { background:linear-gradient(135deg,#e8f4fb,#f0fff8); border:2.5px solid var(--dark); border-radius:16px; padding:16px; margin-bottom:15px; box-shadow:4px 4px 0 var(--dark); text-align:center; }
+  .diagram-wrap svg { max-width:100%; height:auto; }
+  .diagram-wrap p { font-size:0.75rem; color:#557; margin-top:6px; }
+
+  .medidas-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px; }
+  .medida-box { border:2.5px solid var(--dark); border-radius:14px; padding:10px 12px; box-shadow:3px 3px 0 var(--dark); background:var(--white); }
+  .medida-box .label   { font-size:0.71rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--deep-sky); margin-bottom:3px; }
+  .medida-box .valor   { font-family:'Abril Fatface',serif; font-size:1.35rem; color:var(--dark); }
+  .medida-box .detalhe { font-size:0.74rem; color:#5a7a86; margin-top:2px; }
+  .medida-box.dest1 { background:var(--sun); }
+  .medida-box.dest2 { background:#ffe0ec; }
+  .medida-box.dest3 { background:#d4f7ed; }
+
+  .step { display:flex; gap:12px; margin-bottom:15px; align-items:flex-start; }
+  .step-num { min-width:33px; height:33px; background:var(--dark); color:var(--white); border-radius:50%; font-family:'Abril Fatface',serif; font-size:0.95rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:2px 2px 0 var(--kite-red); }
+  .step-body h4 { font-size:0.9rem; font-weight:700; margin-bottom:3px; }
+  .step-body p  { font-size:0.84rem; line-height:1.6; color:#2a4a56; }
+
+  .tip  { background:#FFF3CD; border-left:5px solid var(--sun); border-radius:0 12px 12px 0; padding:10px 13px; margin:12px 0; font-size:0.83rem; line-height:1.6; color:#5a4200; }
+  .tip strong { display:block; margin-bottom:3px; }
+  .warn { background:#FFE8EE; border-left:5px solid var(--kite-red); border-radius:0 12px 12px 0; padding:10px 13px; margin:12px 0; font-size:0.83rem; color:#7a0022; }
+
+  .mat-table { width:100%; border-collapse:collapse; font-size:0.83rem; }
+  .mat-table th { background:var(--dark); color:var(--white); padding:6px 10px; text-align:left; font-weight:700; }
+  .mat-table td { padding:6px 10px; border-bottom:1.5px solid #dde; }
+  .mat-table tr:nth-child(even) td { background:#f3fafd; }
+
+  footer { text-align:center; padding:20px; font-size:0.74rem; color:#8aabb5; border-top:2px dashed #cde; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="cloud c1"></div>
+  <div class="cloud c2"></div>
+  <div class="hero-kites">
+
+    <!-- Raia (losango) -->
+    <svg class="hero-kite" width="56" height="72" viewBox="0 0 56 72">
+      <polygon points="28,3 53,34 28,65 3,34" fill="#EF476F" stroke="#073B4C" stroke-width="2"/>
+      <polygon points="28,3 53,34 28,34" fill="#FFD166" opacity="0.75"/>
+      <polygon points="3,34 28,34 28,65" fill="#118AB2" opacity="0.75"/>
+      <polygon points="28,3 53,34 28,65 3,34" fill="none" stroke="#073B4C" stroke-width="2"/>
+      <line x1="28" y1="3" x2="28" y2="65" stroke="#073B4C" stroke-width="1.2" stroke-dasharray="3,3"/>
+      <line x1="3" y1="34" x2="53" y2="34" stroke="#073B4C" stroke-width="1.2" stroke-dasharray="3,3"/>
+      <path d="M28,65 Q31,70 28,75" fill="none" stroke="#073B4C" stroke-width="1.5"/>
+    </svg>
+
+    <!-- Paulista (2 horizontais + espinha) -->
+    <svg class="hero-kite" width="70" height="90" viewBox="0 0 70 90">
+      <!-- body: trapezoid top + triangle bottom -->
+      <!-- top horiz at y=18, bot horiz at y=52, spine goes 0→85 -->
+      <!-- shape bounded by: topo(35,2), H1-left(5,18), H1-right(65,18), H2-right(65,52), ponta(35,85), H2-left(5,52) -->
+      <polygon points="35,2 65,18 65,52 35,85 5,52 5,18" fill="#06A77D22" stroke="none"/>
+      <polygon points="35,2 65,18 5,18" fill="#FFD16650"/>
+      <polygon points="5,18 65,18 65,52 5,52" fill="#06A77D40"/>
+      <polygon points="5,52 65,52 35,85" fill="#118AB240"/>
+      <polygon points="35,2 65,18 65,52 35,85 5,52 5,18" fill="none" stroke="#073B4C" stroke-width="2"/>
+      <!-- varinhas -->
+      <line x1="35" y1="2" x2="35" y2="85" stroke="#073B4C" stroke-width="2" stroke-dasharray="4,3"/>
+      <line x1="5" y1="18" x2="65" y2="18" stroke="#073B4C" stroke-width="2.2"/>
+      <line x1="5" y1="52" x2="65" y2="52" stroke="#073B4C" stroke-width="2.2"/>
+      <!-- bridle lines -->
+      <line x1="35" y1="18" x2="35" y2="85" stroke="#06D6A0" stroke-width="1" stroke-dasharray="2,2" opacity="0.7"/>
+    </svg>
+
+    <!-- Quadrada (pentágono) -->
+    <svg class="hero-kite" width="66" height="76" viewBox="0 0 66 76">
+      <polygon points="5,5 61,5 61,44 33,72 5,44" fill="#FF6B3522" stroke="none"/>
+      <polygon points="5,5 61,5 61,44 33,44" fill="#FFD16650"/>
+      <polygon points="5,44 33,44 33,72" fill="#118AB240"/>
+      <polygon points="61,44 33,44 33,72" fill="#EF476F40"/>
+      <polygon points="5,5 61,5 61,44 33,72 5,44" fill="none" stroke="#073B4C" stroke-width="2"/>
+      <line x1="5" y1="5" x2="33" y2="72" stroke="#073B4C" stroke-width="1.2" stroke-dasharray="3,3"/>
+      <line x1="61" y1="5" x2="33" y2="72" stroke="#073B4C" stroke-width="1.2" stroke-dasharray="3,3"/>
+    </svg>
+  </div>
+  <h1>Manual da Pipa</h1>
+  <p>3 modelos · Raia 60cm · Paulista 70cm · Quadrada 70cm</p>
+</div>
+
+<!-- MODEL SELECTOR -->
+<div class="model-selector">
+  <button class="model-btn active" onclick="showModel('raia',this)">
+    <span class="model-icon">🪁</span>Raia
+    <span class="model-sub">losango·60cm</span>
+  </button>
+  <button class="model-btn" onclick="showModel('paulista',this)">
+    <span class="model-icon">🪁</span>Paulista
+    <span class="model-sub">2 varas·70cm</span>
+  </button>
+  <button class="model-btn" onclick="showModel('quadrada',this)">
+    <span class="model-icon">🪁</span>Quadrada
+    <span class="model-sub">pentágono·70cm</span>
+  </button>
+</div>
+
+
+<!-- ================================================================ -->
+<!-- RAIA -->
+<!-- ================================================================ -->
+<div class="model-panel active" id="model-raia">
+  <div class="sub-tabs">
+    <button class="tab-btn active" onclick="showTab('raia','medidas',this)">📐 Medidas</button>
+    <button class="tab-btn" onclick="showTab('raia','materiais',this)">🛒 Materiais</button>
+    <button class="tab-btn" onclick="showTab('raia','montagem',this)">🔧 Montagem</button>
+    <button class="tab-btn" onclick="showTab('raia','cauda',this)">🎀 Cauda</button>
+    <button class="tab-btn" onclick="showTab('raia','dicas',this)">💨 Voo</button>
+  </div>
+
+  <div class="section active" id="raia-medidas">
+    <div class="section-title"><span>📐</span>Medidas — Raia</div>
+    <span class="model-tag tag-raia">Losango · 60 cm</span>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 280 295" width="250">
+        <polygon points="140,15 254,148 140,268 26,148" fill="#FFD16628" stroke="#073B4C" stroke-width="2"/>
+        <polygon points="140,15 254,148 140,148" fill="#EF476F38"/>
+        <polygon points="26,148 140,148 140,268" fill="#118AB238"/>
+        <line x1="140" y1="15" x2="140" y2="268" stroke="#073B4C" stroke-width="1.5" stroke-dasharray="5,4"/>
+        <line x1="26" y1="148" x2="254" y2="148" stroke="#073B4C" stroke-width="1.5" stroke-dasharray="5,4"/>
+        <line x1="150" y1="17" x2="150" y2="266" stroke="#EF476F" stroke-width="1.5"/>
+        <rect x="154" y="128" width="55" height="17" rx="4" fill="white" stroke="#EF476F" stroke-width="1.2"/>
+        <text x="181" y="140" font-family="Nunito" font-weight="700" font-size="11" fill="#EF476F" text-anchor="middle">60 cm</text>
+        <line x1="28" y1="137" x2="252" y2="137" stroke="#118AB2" stroke-width="1.5"/>
+        <rect x="98" y="113" width="60" height="17" rx="4" fill="white" stroke="#118AB2" stroke-width="1.2"/>
+        <text x="128" y="125" font-family="Nunito" font-weight="700" font-size="11" fill="#118AB2" text-anchor="middle">48 cm</text>
+        <text x="28" y="163" font-family="Nunito" font-size="9" fill="#888">travessa a 24 cm do topo</text>
+        <circle cx="140" cy="94" r="5" fill="none" stroke="#06D6A0" stroke-width="2"/>
+        <text x="148" y="91" font-family="Nunito" font-size="9" fill="#06D6A0" font-weight="700">bridle ~17 cm</text>
+        <circle cx="140" cy="15" r="4" fill="#EF476F"/>
+        <circle cx="140" cy="268" r="4" fill="#EF476F"/>
+        <circle cx="26" cy="148" r="4" fill="#118AB2"/>
+        <circle cx="254" cy="148" r="4" fill="#118AB2"/>
+      </svg>
+      <p>Vista frontal — proporção real</p>
+    </div>
+    <div class="medidas-grid">
+      <div class="medida-box dest1"><div class="label">Varinha mestre ↕</div><div class="valor">60 cm</div><div class="detalhe">Topo → base</div></div>
+      <div class="medida-box"><div class="label">Transversal ↔</div><div class="valor">48 cm</div><div class="detalhe">80% da mestre</div></div>
+      <div class="medida-box"><div class="label">Posição travessa</div><div class="valor">24 cm</div><div class="detalhe">40% do topo</div></div>
+      <div class="medida-box"><div class="label">Ponto bridle</div><div class="valor">~17 cm</div><div class="detalhe">28% do topo</div></div>
+    </div>
+    <div class="card"><div class="card-label">Proporção</div><h3>Por que essas medidas?</h3><p>Proporção mestre:transversal <strong>5:4</strong>. Travessa a 40% cria pressão assimétrica que gera sustentação. Bridle a ~28% é o ponto de equilíbrio para vento leve a moderado.</p></div>
+    <div class="tip"><strong>💡 Simetria</strong>±1 cm é tolerável. Os dois lados da transversal devem ter exatamente 24 cm cada.</div>
+  </div>
+
+  <div class="section" id="raia-materiais">
+    <div class="section-title"><span>🛒</span>Materiais — Raia</div>
+    <span class="model-tag tag-raia">Losango · 60 cm</span>
+    <div class="card"><h3>Estrutura</h3><table class="mat-table"><tr><th>Item</th><th>Medida</th><th>Função</th></tr><tr><td>Vareta bambu/fibra</td><td>60 cm</td><td>Mestre</td></tr><tr><td>Vareta bambu/fibra</td><td>48 cm</td><td>Transversal</td></tr><tr><td>Linha nylon 0,30 mm</td><td>~2 m</td><td>Moldura</td></tr></table></div>
+    <div class="card"><h3>Cobertura</h3><table class="mat-table"><tr><th>Material</th><th>Qtd.</th><th>Obs.</th></tr><tr><td>Papel de seda / TNT leve</td><td>1 folha grande</td><td>Leve = voa melhor</td></tr><tr><td>Plástico de sacola</td><td>Alternativa</td><td>Durável, mais pesado</td></tr><tr><td>Cola branca / fita crepe</td><td>Pouco</td><td>Fixar bordas</td></tr></table></div>
+    <div class="card"><h3>Cauda & linha</h3><table class="mat-table"><tr><th>Item</th><th>Qtd.</th></tr><tr><td>Tiras tecido/papel (cauda)</td><td>~2 m</td></tr><tr><td>Linha de voo (carretel)</td><td>30–50 m</td></tr><tr><td>Carretel ou pauzinho</td><td>1</td></tr></table></div>
+    <div class="tip"><strong>💡 Bambu vs. fibra</strong>Bambu funciona ótimo. Lixe as pontas para não rasgar. Fibra de vidro é mais flexível e dura mais.</div>
+  </div>
+
+  <div class="section" id="raia-montagem">
+    <div class="section-title"><span>🔧</span>Montagem — Raia</div>
+    <span class="model-tag tag-raia">Losango · 60 cm</span>
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Centre a transversal</h4><p>Na vareta de 48 cm, marque 24 cm (meio exato).</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Encaixe em cruz</h4><p>Transversal perpendicular à mestre, a 24 cm do topo. Amarre em X firme com linha.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Moldura de nylon</h4><p>Passe pelos 4 extremos formando o losango. Entalhe as pontas para a linha não escorregar.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Cole a cobertura</h4><p>Corte com ~2 cm de margem. Dobre e cole. Comece pelos cantos.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><h4>Monte o bridle</h4><p>Linha do topo ao cruzamento com ~10% de folga (~26 cm). Prenda a linha de voo no meio. Inclinação ~20° para frente.</p></div></div>
+    <div class="warn">⚠️ Simetria obrigatória — os dois lados da transversal devem ter mesmo comprimento e peso.</div>
+  </div>
+
+  <div class="section" id="raia-cauda">
+    <div class="section-title"><span>🎀</span>Cauda — Raia</div>
+    <span class="model-tag tag-raia">Losango · 60 cm</span>
+    <div class="card"><div class="card-label">Estabilidade</div><h3>Tamanho ideal</h3><p>Comece com <strong>1,8–2,5 m</strong> (3–4× a pipa).</p><br><ul><li>Cauda curta → gira e cai</li><li>Cauda longa → não sobe</li><li>Teste e ajuste em campo</li></ul></div>
+    <div class="card"><h3>Material</h3><ul><li><strong>Tiras de tecido</strong> — ideal, 2–3 cm de largura</li><li><strong>Fita crepe</strong> — fácil e funciona</li><li><strong>Papel crepom</strong> — bonito, rasga com vento forte</li></ul></div>
+    <div class="card"><div class="card-label">Linha</div><h3>Linha de voo</h3><p>Nylon <strong>0,35–0,50 mm</strong>. Evite cerol. <strong>30–50 m</strong>.</p></div>
+    <div class="tip"><strong>💡 Ajuste do bridle</strong>Pipa mergulha → mova o ponto para cima. Não sobe → mova para baixo. 1–2 cm por vez.</div>
+  </div>
+
+  <div class="section" id="raia-dicas">
+    <div class="section-title"><span>💨</span>Dicas de voo — Raia</div>
+    <span class="model-tag tag-raia">Losango · 60 cm</span>
+    <div class="card"><div class="card-label">Condições</div><h3>Vento ideal</h3><p><strong>10–25 km/h</strong>. Frescor leve e constante no rosto = perfeito.</p></div>
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Lançamento</h4><p>De costas para o vento. Segure acima da cabeça e solte — não arremesse.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Subindo</h4><p>Recue devagar e solte linha. Deixe o vento trabalhar.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Controlando</h4><p>Puxe para ganhar altitude. Solte para descer ou aliviar rajadas.</p></div></div>
+    <div class="warn">⚠️ Longe de fios elétricos, árvores e aeroportos.</div>
+    <div class="card"><h3>Resumo rápido</h3><ul><li>Mestre: <strong>60 cm</strong> · Transversal: <strong>48 cm</strong></li><li>Travessa a <strong>24 cm</strong> do topo · Bridle: <strong>~17 cm</strong></li><li>Cauda: <strong>1,8–2,5 m</strong> · Vento: <strong>10–25 km/h</strong></li></ul></div>
+  </div>
+</div><!-- /raia -->
+
+
+<!-- ================================================================ -->
+<!-- PAULISTA (2 horizontais + espinha) -->
+<!-- ================================================================ -->
+<!--
+  Espinha total: 70 cm
+  Vara de cima (H1): a 21 cm do topo (30%) — 70 cm de largura
+  Vara de baixo (H2): a 45 cm do topo (64%) — 70 cm de largura
+  Espinha abaixo de H2: 25 cm (ponta da cauda)
+  Formato: topo pontudo → trapézio → triângulo
+  Bridle: 2 pontos — centro de H1 (topo) + ponta da espinha (base)
+  Linha de voo se prende no meio do bridle
+-->
+<div class="model-panel" id="model-paulista">
+  <div class="sub-tabs">
+    <button class="tab-btn active" onclick="showTab('paulista','medidas',this)">📐 Medidas</button>
+    <button class="tab-btn" onclick="showTab('paulista','materiais',this)">🛒 Materiais</button>
+    <button class="tab-btn" onclick="showTab('paulista','montagem',this)">🔧 Montagem</button>
+    <button class="tab-btn" onclick="showTab('paulista','cauda',this)">🎀 Cauda</button>
+    <button class="tab-btn" onclick="showTab('paulista','dicas',this)">💨 Voo</button>
+  </div>
+
+  <div class="section active" id="paulista-medidas">
+    <div class="section-title"><span>📐</span>Medidas — Paulista</div>
+    <span class="model-tag tag-paulista">2 Horizontais · 70 cm</span>
+
+    <div class="diagram-wrap">
+      <!--
+        Espinha: x=150, y=10 (topo) → y=310 (base)  = 300px = 70cm  → escala 4.28px/cm
+        H1 a 21cm do topo → y = 10 + 21*4.28 = 10+90 = 100
+        H2 a 45cm do topo → y = 10 + 45*4.28 = 10+193 = 203
+        H1 e H2 largura 70cm = 300px → left=0, right=300  (centrado em 150 → 0 a 300)
+        mas viewBox 320 de largura, então left=10, right=290
+        Forma:
+          Topo pontudo: (150,10)
+          H1 esq: (10,100) H1 dir: (290,100)
+          H2 esq: (10,203) H2 dir: (290,203)
+          Ponta: (150,310)
+        Shape outline: (150,10)→(290,100)→(290,203)→(150,310)→(10,203)→(10,100)→(150,10)
+      -->
+      <svg viewBox="0 0 320 330" width="265">
+        <defs>
+          <marker id="aG" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M6,0 L0,3 L6,6 Z" fill="#06A77D"/></marker>
+          <marker id="aGr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto-start-reverse"><path d="M6,0 L0,3 L6,6 Z" fill="#06A77D"/></marker>
+          <marker id="aB2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M6,0 L0,3 L6,6 Z" fill="#118AB2"/></marker>
+          <marker id="aB2r" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto-start-reverse"><path d="M6,0 L0,3 L6,6 Z" fill="#118AB2"/></marker>
+        </defs>
+
+        <!-- Panels -->
+        <polygon points="150,10 290,100 10,100" fill="#FFD16645"/>
+        <polygon points="10,100 290,100 290,203 10,203" fill="#06A77D30"/>
+        <polygon points="10,203 290,203 150,310" fill="#118AB235"/>
+
+        <!-- Outline -->
+        <polygon points="150,10 290,100 290,203 150,310 10,203 10,100"
+                 fill="none" stroke="#073B4C" stroke-width="2"/>
+
+        <!-- Espinha (vertical, dashed) -->
+        <line x1="150" y1="10" x2="150" y2="310" stroke="#073B4C" stroke-width="2" stroke-dasharray="5,3"/>
+
+        <!-- H1 (vara de cima) -->
+        <line x1="10" y1="100" x2="290" y2="100" stroke="#073B4C" stroke-width="2.5"/>
+
+        <!-- H2 (vara de baixo) -->
+        <line x1="10" y1="203" x2="290" y2="203" stroke="#073B4C" stroke-width="2.5"/>
+
+        <!-- Espinha height annotation (left side) -->
+        <line x1="0" y1="10" x2="0" y2="310" stroke="#06A77D" stroke-width="1.5"
+              marker-start="url(#aGr)" marker-end="url(#aG)"/>
+        <rect x="4" y="148" width="52" height="17" rx="4" fill="white" stroke="#06A77D" stroke-width="1.2"/>
+        <text x="30" y="160" font-family="Nunito" font-weight="700" font-size="11" fill="#06A77D" text-anchor="middle">70 cm</text>
+
+        <!-- H1 width annotation -->
+        <line x1="10" y1="86" x2="290" y2="86" stroke="#EF476F" stroke-width="1.5"
+              marker-start="url(#aGr)" marker-end="url(#aG)"/>
+        <rect x="104" y="76" width="92" height="17" rx="4" fill="white" stroke="#EF476F" stroke-width="1.2"/>
+        <text x="150" y="88" font-family="Nunito" font-weight="700" font-size="11" fill="#EF476F" text-anchor="middle">70 cm (H1 e H2)</text>
+
+        <!-- Segment labels -->
+        <text x="296" y="58"  font-family="Nunito" font-size="9" fill="#888">21 cm</text>
+        <text x="296" y="155" font-family="Nunito" font-size="9" fill="#888">24 cm</text>
+        <text x="296" y="260" font-family="Nunito" font-size="9" fill="#888">25 cm</text>
+
+        <!-- Dimension ticks on right -->
+        <line x1="293" y1="10"  x2="300" y2="10"  stroke="#aaa" stroke-width="1"/>
+        <line x1="293" y1="100" x2="300" y2="100" stroke="#aaa" stroke-width="1"/>
+        <line x1="293" y1="203" x2="300" y2="203" stroke="#aaa" stroke-width="1"/>
+        <line x1="293" y1="310" x2="300" y2="310" stroke="#aaa" stroke-width="1"/>
+
+        <!-- Bridle points -->
+        <circle cx="150" cy="100" r="6" fill="none" stroke="#06D6A0" stroke-width="2.5"/>
+        <text x="158" y="97"  font-family="Nunito" font-size="9" fill="#06D6A0" font-weight="700">bridle ponto 1</text>
+        <circle cx="150" cy="310" r="6" fill="none" stroke="#06D6A0" stroke-width="2.5"/>
+        <text x="158" y="313" font-family="Nunito" font-size="9" fill="#06D6A0" font-weight="700">bridle ponto 2</text>
+
+        <!-- Bridle line sketch -->
+        <line x1="150" y1="100" x2="150" y2="310" stroke="#06D6A0" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>
+        <circle cx="150" cy="205" r="4" fill="#06D6A0" opacity="0.8"/>
+        <text x="158" y="208" font-family="Nunito" font-size="9" fill="#06D6A0">← linha de voo aqui</text>
+
+        <!-- Corner dots -->
+        <circle cx="150" cy="10"  r="4" fill="#073B4C"/>
+        <circle cx="10"  cy="100" r="4" fill="#EF476F"/>
+        <circle cx="290" cy="100" r="4" fill="#EF476F"/>
+        <circle cx="10"  cy="203" r="4" fill="#118AB2"/>
+        <circle cx="290" cy="203" r="4" fill="#118AB2"/>
+        <circle cx="150" cy="310" r="4" fill="#073B4C"/>
+      </svg>
+      <p>Vista frontal · 1 espinha + 2 varas horizontais iguais</p>
+    </div>
+
+    <div class="medidas-grid">
+      <div class="medida-box dest1">
+        <div class="label">Espinha (vertical)</div>
+        <div class="valor">70 cm</div>
+        <div class="detalhe">Topo → ponta da cauda</div>
+      </div>
+      <div class="medida-box dest3">
+        <div class="label">H1 e H2 (horizontais)</div>
+        <div class="valor">70 cm</div>
+        <div class="detalhe">Cada uma, iguais</div>
+      </div>
+      <div class="medida-box">
+        <div class="label">H1 — posição do topo</div>
+        <div class="valor">21 cm</div>
+        <div class="detalhe">30% da espinha</div>
+      </div>
+      <div class="medida-box">
+        <div class="label">H2 — posição do topo</div>
+        <div class="valor">45 cm</div>
+        <div class="detalhe">64% da espinha</div>
+      </div>
+      <div class="medida-box">
+        <div class="label">Entre H1 e H2</div>
+        <div class="valor">24 cm</div>
+        <div class="detalhe">Seção central</div>
+      </div>
+      <div class="medida-box">
+        <div class="label">Espinha abaixo de H2</div>
+        <div class="valor">25 cm</div>
+        <div class="detalhe">Cauda parte do final</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Bridle</div>
+      <h3>Sistema de 2 pontos</h3>
+      <p>O bridle é uma linha que vai do <strong>centro de H1</strong> (topo) até a <strong>ponta da espinha</strong> (base). A linha de voo se prende no meio desse bridle — aproximadamente na altura de H2. Esse sistema distribui a tensão e mantém a pipa inclinada corretamente.</p>
+    </div>
+    <div class="tip"><strong>💡 Comprimento do bridle</strong>Meça a distância de H1 até a ponta (~49 cm). O bridle deve ter ~55 cm (10–15% mais comprido que essa distância), para que fique com curvatura leve, não esticado.</div>
+  </div>
+
+  <div class="section" id="paulista-materiais">
+    <div class="section-title"><span>🛒</span>Materiais — Paulista</div>
+    <span class="model-tag tag-paulista">2 Horizontais · 70 cm</span>
+    <div class="card"><h3>Estrutura</h3><table class="mat-table"><tr><th>Item</th><th>Medida</th><th>Função</th></tr><tr><td>Vareta bambu/fibra</td><td>70 cm</td><td>Espinha vertical</td></tr><tr><td>Vareta bambu/fibra</td><td>70 cm</td><td>Horizontal 1 (H1, topo)</td></tr><tr><td>Vareta bambu/fibra</td><td>70 cm</td><td>Horizontal 2 (H2, meio-base)</td></tr><tr><td>Linha nylon 0,30 mm</td><td>~3 m</td><td>Moldura e bridle</td></tr></table></div>
+    <div class="card"><h3>Cobertura</h3><table class="mat-table"><tr><th>Material</th><th>Qtd.</th><th>Obs.</th></tr><tr><td>Plástico de sacola (PEAD)</td><td>2–3 sacolas grandes</td><td>Clássico nesse modelo</td></tr><tr><td>TNT leve</td><td>1 folha 80×80 cm</td><td>Mais resistente</td></tr><tr><td>Fita adesiva larga</td><td>1 rolo</td><td>Emendas do plástico</td></tr></table></div>
+    <div class="card"><h3>Cauda & linha</h3><table class="mat-table"><tr><th>Item</th><th>Qtd.</th></tr><tr><td>Tiras tecido/sacola (cauda)</td><td>2,5–4 m</td></tr><tr><td>Linha de voo nylon 0,40 mm</td><td>40–60 m</td></tr><tr><td>Carretel</td><td>1</td></tr></table></div>
+    <div class="tip"><strong>💡 3 varetas iguais</strong>Compre 3 varetas do mesmo lote para garantir mesma espessura e rigidez. Facilita o equilíbrio da pipa.</div>
+  </div>
+
+  <div class="section" id="paulista-montagem">
+    <div class="section-title"><span>🔧</span>Montagem — Paulista</div>
+    <span class="model-tag tag-paulista">2 Horizontais · 70 cm</span>
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Marque os pontos na espinha</h4><p>Na vareta de 70 cm (espinha), marque <strong>21 cm</strong> do topo (posição de H1) e <strong>45 cm</strong> do topo (posição de H2).</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Marque o centro das horizontais</h4><p>Em cada uma das duas varetas de 70 cm, marque o centro em <strong>35 cm</strong>. Esse ponto ficará sobre a espinha.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Amarre H1 na espinha</h4><p>Posicione o centro de H1 no ponto 21 cm da espinha, perpendicular. Amarre em X firme com linha. H1 deve ficar nivelada (não inclinada).</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Amarre H2 na espinha</h4><p>Mesmo processo: centro de H2 no ponto 45 cm da espinha. Amarre firmemente. Confira que H1 e H2 estão paralelas entre si.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><h4>Faça o contorno (moldura)</h4><p>Com nylon, percorra os 6 pontos da forma: topo da espinha → ponta dir H1 → ponta dir H2 → ponta da espinha → ponta esq H2 → ponta esq H1 → fechar no topo. Entalhe as pontas das varetas.</p></div></div>
+    <div class="step"><div class="step-num">6</div><div class="step-body"><h4>Cole a cobertura</h4><p>Apoie a moldura sobre o plástico/TNT. Corte com 2 cm de margem. Fixe com fita. O plástico pode ser dividido em painéis (triângulo do topo, retângulo do meio, triângulo da base) e colado separadamente.</p></div></div>
+    <div class="step"><div class="step-num">7</div><div class="step-body"><h4>Monte o bridle (2 pontos)</h4><p>Amarre uma linha no <strong>centro de H1</strong> e outra ponta na <strong>ponta da espinha</strong>. Comprimento do bridle: ~55 cm (deve fazer uma curva leve, não ficar esticado). A linha de voo se prende no <strong>meio do bridle</strong> — ajuste até a pipa inclinar ~20° para frente quando suspensa.</p></div></div>
+    <div class="warn">⚠️ H1 e H2 devem estar paralelas e perfeitamente centradas na espinha. Qualquer desalinhamento faz a pipa girar.</div>
+    <div class="tip"><strong>💡 Testando antes de cobrir</strong>Monte a estrutura sem cobertura e segure pela linha de voo. A armação deve ficar simétrica e nivelada. Ajuste antes de colar o plástico.</div>
+  </div>
+
+  <div class="section" id="paulista-cauda">
+    <div class="section-title"><span>🎀</span>Cauda — Paulista</div>
+    <span class="model-tag tag-paulista">2 Horizontais · 70 cm</span>
+    <div class="card"><div class="card-label">Estabilidade</div><h3>Tamanho ideal</h3><p>Para 70 cm de espinha, comece com <strong>2,5–4 m</strong>. Esse modelo é estável por natureza graças às duas horizontais, mas ainda precisa de cauda.</p><br><ul><li>Cauda muito curta → oscila verticalmente</li><li>Cauda ideal → voo suave e constante</li></ul></div>
+    <div class="card"><h3>Onde fixar</h3><p>A cauda vai na <strong>ponta da espinha</strong> (base). Você pode também adicionar pequenas tiras nas pontas de H2 (esquerda e direita) para estabilidade extra lateral.</p></div>
+    <div class="card"><div class="card-label">Linha</div><h3>Linha de voo</h3><p>Nylon <strong>0,40–0,55 mm</strong>. <strong>40–60 m</strong>. Esse modelo aguenta bem o vento e pode puxar bastante.</p></div>
+    <div class="tip"><strong>💡 Ajuste do bridle</strong>O ponto de fixação da linha de voo no bridle controla o ângulo de ataque. Deslize o nó 1–2 cm para cima ou para baixo para ajustar o equilíbrio em campo.</p></div>
+  </div>
+
+  <div class="section" id="paulista-dicas">
+    <div class="section-title"><span>💨</span>Dicas de voo — Paulista</div>
+    <span class="model-tag tag-paulista">2 Horizontais · 70 cm</span>
+    <div class="card"><div class="card-label">Condições</div><h3>Vento ideal</h3><p><strong>12–30 km/h</strong>. O modelo é robusto e estável. Com vento fraco pode precisar de lançamento com ajuda.</p></div>
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Lançamento</h4><p>De costas para o vento. Segure pela espinha na altura de H2, ou peça para alguém segurar enquanto você fica com a linha. Solte no momento que sentir o vento puxar.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Subindo</h4><p>Solte linha gradualmente enquanto recua. Esse modelo tende a subir em ângulo alto (~60–70°) com vento adequado.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Controlando</h4><p>Puxe para ganhar altitude. Em rajadas, dê linha para não rasgar a cobertura. Esse modelo aguenta bem rajadas por ter estrutura rígida.</p></div></div>
+    <div class="warn">⚠️ Longe de fios elétricos, árvores e aeroportos.</div>
+    <div class="card"><h3>Resumo rápido</h3><ul><li>Espinha: <strong>70 cm</strong> · H1 e H2: <strong>70 cm cada</strong></li><li>H1 a <strong>21 cm</strong> do topo · H2 a <strong>45 cm</strong> do topo</li><li>Bridle: H1→ponta, <strong>~55 cm</strong>, linha de voo no meio</li><li>Cauda: <strong>2,5–4 m</strong> · Vento: <strong>12–30 km/h</strong></li></ul></div>
+  </div>
+</div><!-- /paulista -->
+
+
+<!-- ================================================================ -->
+<!-- QUADRADA -->
+<!-- ================================================================ -->
+<div class="model-panel" id="model-quadrada">
+  <div class="sub-tabs">
+    <button class="tab-btn active" onclick="showTab('quadrada','medidas',this)">📐 Medidas</button>
+    <button class="tab-btn" onclick="showTab('quadrada','materiais',this)">🛒 Materiais</button>
+    <button class="tab-btn" onclick="showTab('quadrada','montagem',this)">🔧 Montagem</button>
+    <button class="tab-btn" onclick="showTab('quadrada','cauda',this)">🎀 Cauda</button>
+    <button class="tab-btn" onclick="showTab('quadrada','dicas',this)">💨 Voo</button>
+  </div>
+
+  <div class="section active" id="quadrada-medidas">
+    <div class="section-title"><span>📐</span>Medidas — Quadrada</div>
+    <span class="model-tag tag-quadrada">Pentágono · 70 cm</span>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 300 325" width="255">
+        <defs>
+          <marker id="aO2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M6,0 L0,3 L6,6 Z" fill="#FF6B35"/></marker>
+          <marker id="aO2r" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto-start-reverse"><path d="M6,0 L0,3 L6,6 Z" fill="#FF6B35"/></marker>
+        </defs>
+        <polygon points="28,26 272,26 272,166 150,292 28,166" fill="#FF6B3515"/>
+        <polygon points="28,26 272,26 272,166 150,166 28,166" fill="#FFD16635"/>
+        <polygon points="28,166 150,166 150,292" fill="#118AB232"/>
+        <polygon points="272,166 150,166 150,292" fill="#EF476F28"/>
+        <polygon points="28,26 272,26 272,166 150,292 28,166" fill="none" stroke="#073B4C" stroke-width="2"/>
+        <line x1="28" y1="26" x2="150" y2="292" stroke="#073B4C" stroke-width="1.8" stroke-dasharray="4,3"/>
+        <line x1="272" y1="26" x2="150" y2="292" stroke="#073B4C" stroke-width="1.8" stroke-dasharray="4,3"/>
+        <line x1="28" y1="26" x2="272" y2="26" stroke="#073B4C" stroke-width="2.5" stroke-dasharray="5,3"/>
+        <line x1="28" y1="12" x2="272" y2="12" stroke="#FF6B35" stroke-width="1.5" marker-start="url(#aO2r)" marker-end="url(#aO2)"/>
+        <rect x="100" y="2" width="100" height="17" rx="4" fill="white" stroke="#FF6B35" stroke-width="1.2"/>
+        <text x="150" y="14" font-family="Nunito" font-weight="700" font-size="11" fill="#FF6B35" text-anchor="middle">70 cm (horizontal)</text>
+        <text x="36" y="175" font-family="Nunito" font-size="9" fill="#666">diagonais: ~75 cm cada</text>
+        <circle cx="150" cy="26" r="6" fill="none" stroke="#06D6A0" stroke-width="2.5"/>
+        <text x="158" y="23" font-family="Nunito" font-size="9" fill="#06D6A0" font-weight="700">bridle (centro, 35 cm)</text>
+        <circle cx="28"  cy="26"  r="4" fill="#FF6B35"/>
+        <circle cx="272" cy="26"  r="4" fill="#FF6B35"/>
+        <circle cx="150" cy="292" r="4" fill="#EF476F"/>
+        <text x="156" y="296" font-family="Nunito" font-size="9" fill="#555">ponta (cauda)</text>
+      </svg>
+      <p>Vista frontal · 1 horizontal + 2 diagonais</p>
+    </div>
+    <div class="medidas-grid">
+      <div class="medida-box dest2"><div class="label">Vara horizontal (topo)</div><div class="valor">70 cm</div><div class="detalhe">Ponta esq → ponta dir</div></div>
+      <div class="medida-box dest1"><div class="label">Diagonais (× 2)</div><div class="valor">75 cm</div><div class="detalhe">Canto → ponta base</div></div>
+      <div class="medida-box"><div class="label">Altura total</div><div class="valor">~70 cm</div><div class="detalhe">Topo → ponta inferior</div></div>
+      <div class="medida-box"><div class="label">Bridle (centro)</div><div class="valor">35 cm</div><div class="detalhe">Meio da horizontal</div></div>
+    </div>
+    <div class="card"><div class="card-label">Estrutura</div><h3>Como funciona?</h3><p><strong>3 varinhas</strong>: horizontal no topo (70 cm) + duas diagonais simétricas (75 cm cada) convergindo na ponta inferior. O bridle se prende direto no centro da horizontal.</p></div>
+    <div class="tip"><strong>💡 Crítico</strong>As duas diagonais devem ter exatamente o mesmo comprimento. Meça as duas juntas antes de cortar.</div>
+  </div>
+
+  <div class="section" id="quadrada-materiais">
+    <div class="section-title"><span>🛒</span>Materiais — Quadrada</div>
+    <span class="model-tag tag-quadrada">Pentágono · 70 cm</span>
+    <div class="card"><h3>Estrutura</h3><table class="mat-table"><tr><th>Item</th><th>Medida</th><th>Função</th></tr><tr><td>Vareta bambu/fibra</td><td>70 cm</td><td>Horizontal (topo)</td></tr><tr><td>Vareta bambu/fibra</td><td>75 cm</td><td>Diagonal esquerda</td></tr><tr><td>Vareta bambu/fibra</td><td>75 cm</td><td>Diagonal direita</td></tr><tr><td>Linha nylon 0,30 mm</td><td>~2,5 m</td><td>Moldura</td></tr></table></div>
+    <div class="card"><h3>Cobertura & cauda</h3><table class="mat-table"><tr><th>Item</th><th>Qtd.</th></tr><tr><td>Plástico sacola / TNT leve</td><td>1–2 sacolas ou 80×80 cm</td></tr><tr><td>Fita adesiva larga</td><td>1 rolo</td></tr><tr><td>Tiras cauda</td><td>2,5–3,5 m</td></tr><tr><td>Linha de voo nylon</td><td>40–60 m</td></tr></table></div>
+  </div>
+
+  <div class="section" id="quadrada-montagem">
+    <div class="section-title"><span>🔧</span>Montagem — Quadrada</div>
+    <span class="model-tag tag-quadrada">Pentágono · 70 cm</span>
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Centre a horizontal</h4><p>Marque 35 cm no meio da vareta de 70 cm — ponto do bridle e cruzamento das diagonais.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Fixe as diagonais nos cantos</h4><p>Diagonal esquerda (75 cm) na ponta esquerda; direita na ponta direita. Pontas livres apontam para baixo.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Una as pontas inferiores</h4><p>Junte e amarre firmemente — essa é a ponta da pipa. Distância topo→ponta deve ser ~70 cm.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Moldura e cobertura</h4><p>Percorra os 5 pontos com nylon. Cole o plástico/TNT com 2 cm de margem dobrada.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><h4>Bridle</h4><p>Prenda a linha de voo no centro da horizontal (35 cm). A pipa deve inclinar ~15–20° para frente.</p></div></div>
+    <div class="warn">⚠️ As duas diagonais devem ser idênticas — qualquer diferença faz a pipa girar.</div>
+  </div>
+
+  <div class="section" id="quadrada-cauda">
+    <div class="section-title"><span>🎀</span>Cauda — Quadrada</div>
+    <span class="model-tag tag-quadrada">Pentágono · 70 cm</span>
+    <div class="card"><div class="card-label">Estabilidade</div><h3>Tamanho ideal</h3><p><strong>2,5–3,5 m</strong> (3,5–5× a largura). Mais largo que a raia → precisa cauda um pouco mais longa.</p></div>
+    <div class="card"><div class="card-label">Linha</div><h3>Linha de voo</h3><p>Nylon <strong>0,40–0,60 mm</strong>. <strong>40–60 m</strong>.</p></div>
+    <div class="tip"><strong>💡 Derivando?</strong>Adicione uma tira curta de cauda no canto inferior do lado para onde deriva.</div>
+  </div>
+
+  <div class="section" id="quadrada-dicas">
+    <div class="section-title"><span>💨</span>Dicas de voo — Quadrada</div>
+    <span class="model-tag tag-quadrada">Pentágono · 70 cm</span>
+    <div class="card"><div class="card-label">Condições</div><h3>Vento ideal</h3><p><strong>12–30 km/h</strong>. Mais robusto que a raia. Com vento fraco pode precisar de empurrão.</p></div>
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Lançamento</h4><p>De costas para o vento. Segure pelo centro da horizontal. Solte quando sentir o vento puxar.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Subindo & controlando</h4><p>Solte linha recuando. Puxe para ganhar altitude. Dê linha em rajadas fortes.</p></div></div>
+    <div class="warn">⚠️ Longe de fios elétricos, árvores e aeroportos.</div>
+    <div class="card"><h3>Resumo rápido</h3><ul><li>Horizontal: <strong>70 cm</strong> · Diagonais: <strong>75 cm cada</strong></li><li>Bridle: centro da horizontal (<strong>35 cm</strong>)</li><li>Cauda: <strong>2,5–3,5 m</strong> · Vento: <strong>12–30 km/h</strong></li></ul></div>
+  </div>
+</div><!-- /quadrada -->
+
+<footer>Manual da Pipa · Raia 60 cm · Paulista 70 cm · Quadrada 70 cm</footer>
+
+<script>
+  function showModel(model, btn) {
+    document.querySelectorAll('.model-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('model-' + model).classList.add('active');
+    btn.classList.add('active');
+  }
+  function showTab(model, tab, btn) {
+    const panel = document.getElementById('model-' + model);
+    panel.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    panel.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(model + '-' + tab).classList.add('active');
+    btn.classList.add('active');
+  }
+</script>
+</body>
+</html>
